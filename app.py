@@ -1,7 +1,7 @@
 import json
 
-
 BUDGET_FILE = "monthly_budget.txt"
+
 
 def main():
     options()
@@ -29,11 +29,11 @@ def get_expense():
     expenses = load_expenses()
     expense = input("\nEnter your expense: ")
     price = float(input("Cost: "))
-    category_options = ["1-Food","2-Housing","3-Transportation","4-Entertainment","5-Misc"]
+    category_options = ["Food","Housing","Transportation","Entertainment","Misc"]
     while True:
         print("Category:")
-        for option in category_options:
-            print(option)
+        for i,option in enumerate(category_options):
+            print(f"{i+1}-{option}")
         category = int(input("Enter the Category: "))
 
         if 1 <= category <= 5:
@@ -47,7 +47,7 @@ def get_expense():
     expenses.append(new_expense)
     save_expenses(expenses)
     
-    print(f"Saved a New expense:{expense} {price}€ Category:{category_options[category-1]}")
+    print(f"Saved a New expense: {expense} {price}€ Category:{category_options[category-1]}")
 
     main()
             
