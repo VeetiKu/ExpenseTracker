@@ -4,7 +4,19 @@ BUDGET_FILE = "monthly_budget.txt"
 
 
 def main():
-    options()
+    while True:
+        budget = load_budget()
+        if budget == 0:
+            monthly_budget()
+            
+        choice = options()
+        if choice == 1:
+            get_expense()
+        elif choice == 2:
+            monthly_budget()
+        elif choice == 3:
+            print("Exiting the app")
+            break
     
 def options():
     print("\nWhat Would you like to do?")
@@ -12,18 +24,12 @@ def options():
     while True:
         for option in modules:
             print(option)
-        choice = int(input("Enter the Module you want to use: "))
-        if 1 <= choice <= 3:
-            break
-        else:
-            print("Entered number must be between 1-3")
-    if choice == 1:
-        get_expense()
-    elif choice == 2:
-        monthly_budget()
-    elif choice == 3:
-        print("Exiting the app")
-        quit()
+        user_input = input("Enter the Module you want to use: ")
+        if user_input.isdigit():
+            choice = int(user_input)
+            if 1 <= choice <= 3:
+                return choice
+        print("Error: Entered number must be between 1-3.")
         
 def get_expense():
     expenses = load_expenses()
