@@ -1,10 +1,13 @@
+import json
+
+
 BUDGET_FILE = "monthly_budget.txt"
 
 def main():
     options()
     
 def options():
-    print("What Would you like to do?")
+    print("\nWhat Would you like to do?")
     modules = ["1-Add new expense","2-Modify monthly budget","3-EXIT"]
     while True:
         for option in modules:
@@ -22,11 +25,9 @@ def options():
         print("Exiting the app")
         quit()
         
-        
-
-        
 def get_expense():
-    expense = input("Enter your expense: ")
+    expenses = load_expenses()
+    expense = input("\nEnter your expense: ")
     price = float(input("Cost: "))
     category_options = ["1-Food","2-Housing","3-Transportation","4-Entertainment","5-Misc"]
     while True:
@@ -39,7 +40,15 @@ def get_expense():
             break
         else:
             print("Entered number must be between 1-5")
+            
+    new_expense = {"Name":expense,
+                   "Price":price,
+                   "category":category_options[category-1]}        
+    expenses.append(new_expense)
+    save_expenses(expenses)
+    
     print(f"Saved a New expense:{expense} {price}€ Category:{category_options[category-1]}")
+
     main()
             
 def monthly_budget():
@@ -64,6 +73,18 @@ def load_budget():
             return float(f.read())
     except (FileNotFoundError, ValueError):
         return 0
+    
+def save_expenses(expenses, filename="expenses.json"):
+    with open(filename,"w") as f:
+        json.dump(expenses, f, indent=4)
+
+def load_expenses(filename="expenses.json"):
+    try:
+        with open(filename, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
 
 if __name__ == "__main__":
     main()
