@@ -5,19 +5,25 @@ def main():
     
 def options():
     print("What Would you like to do?")
-    modules = ["1-Add new expense","2-Modify monthly budget"]
+    modules = ["1-Add new expense","2-Modify monthly budget","3-EXIT"]
     while True:
         for option in modules:
             print(option)
         choice = int(input("Enter the Module you want to use: "))
-        if 1 <= choice <= 2:  # only 2 options exist
+        if 1 <= choice <= 3:
             break
         else:
-            print("Entered number must be between 1-2")
+            print("Entered number must be between 1-3")
     if choice == 1:
         get_expense()
     elif choice == 2:
         monthly_budget()
+    elif choice == 3:
+        print("Exiting the app")
+        quit()
+        
+        
+
         
 def get_expense():
     expense = input("Enter your expense: ")
@@ -28,16 +34,18 @@ def get_expense():
         for option in category_options:
             print(option)
         category = int(input("Enter the Category: "))
+
         if 1 <= category <= 5:
             break
         else:
             print("Entered number must be between 1-5")
+    print(f"Saved a New expense:{expense} {price}€ Category:{category_options[category-1]}")
     main()
             
 def monthly_budget():
-    budget = load_budget()  # load current budget
+    budget = load_budget() 
     if budget > 0:
-        print(f"Your current monthly budget is {budget}€")
+        print(f"\nYour current monthly budget is {budget}€")
     else:
         print("You haven't set a budget yet.")
     
