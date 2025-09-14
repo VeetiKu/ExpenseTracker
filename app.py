@@ -1,14 +1,27 @@
 import json
+import datetime
 
-BUDGET_FILE = "monthly_budget.txt"
+BUDGET_FILE = "monthly_budget.json"
+EXPENSE_FILE_CURRENT = "expenses.json"
+EXPENSE_FILE_PAST = "pastexpenses.json"
 
 
 def main():
     while True:
-        budget = load_budget()
+        budget, saved_month = load_budget()
+        current_month = datetime.date.today().strftime("%Y-%m")
+
+        # Reset if new month
+        if saved_month != current_month:
+            print("\n--- New Month Detected ---")
+            print("Archiving last month’s expenses and resetting for this month.")
+            last_expenses = load_expenses()
+            save_expenses(last_expenses, EXPENSE_FILE_PAST)
+            save_expenses([])
+            save_budget(budget, current_month)
+
         if budget == 0:
             monthly_budget()
-            
         choice = options()
         if choice == 1:
             get_expense()
@@ -19,7 +32,7 @@ def main():
         elif choice == 4:
             print("Exiting the app")
             break
-    
+        
 def options():
     print("\nWhat Would you like to do?")
     modules = ["1-Add new expense","2-Modify monthly budget","3-Display your expenses","4-EXIT"]
@@ -48,57 +61,60 @@ def get_expense():
             break
         else:
             print("Entered number must be between 1-5")
-            
-    new_expense = {"Name":expense,
-                   "Price":price,
-                   "category":category_options[category-1]}        
+
+    new_expense = {
+        "Name": expense,
+        "Price": price,
+        "category": category_options[category - 1],
+    }
     expenses.append(new_expense)
     save_expenses(expenses)
-    
     print(f"Saved a New expense: {expense} {price}€ Category:{category_options[category-1]}")
-
-    main()
-            
+    
 def monthly_budget():
-    budget = load_budget() 
+    budget, _ = load_budget()
     if budget > 0:
         print(f"\nYour current monthly budget is {budget}€")
     else:
         print("You haven't set a budget yet.")
-    
-    budget = float(input("Enter your new monthly budget: "))
-    save_budget(budget)
-    print(f"Your new budget is {budget}€ every month")
-    main()
 
-def save_budget(budget):
+    budget = float(input("Enter your new monthly budget: "))
+    current_month = datetime.date.today().strftime("%Y-%m")
+    save_budget(budget, current_month)
+    print(f"Your new budget is {budget}€ every month")
+
+
+def save_budget(budget, month):
+    data = {"budget": budget, "month": month}
     with open(BUDGET_FILE, "w") as f:
-        f.write(str(budget))
+        json.dump(data, f)
 
 def load_budget():
     try:
         with open(BUDGET_FILE, "r") as f:
-            return float(f.read())
-    except (FileNotFoundError, ValueError):
-        return 0
+            data = json.load(f)
+            return data.get("budget", 0), data.get("month", "")
+    except (FileNotFoundError, ValueError, json.JSONDecodeError):
+        return 0, ""
     
-def save_expenses(expenses, filename="expenses.json"):
-    with open(filename,"w") as f:
+def save_expenses(expenses, filename=EXPENSE_FILE_CURRENT):
+    with open(filename, "w") as f:
         json.dump(expenses, f, indent=4)
 
-def load_expenses(filename="expenses.json"):
+
+def load_expenses(filename=EXPENSE_FILE_CURRENT):
     try:
         with open(filename, "r") as f:
             return json.load(f)
     except FileNotFoundError:
         return []
 
+
 def show_expenses():
     expenses = load_expenses()
     if not expenses:
         print("\nNo expenses recorded yet.")
         return
-    
     print("\nYour Expenses:")
     print("-" * 50)
     total = 0
@@ -110,11 +126,12 @@ def show_expenses():
         total += price
     print("-" * 50)
     print(f"Total Spent: {total:.2f}€")
-    
-    budget = load_budget()
+    budget, _ = load_budget()
     if budget > 0:
         remaining = budget - total
         print(f"Remaining Budget: {remaining:.2f}€")
 
+
 if __name__ == "__main__":
     main()
+
