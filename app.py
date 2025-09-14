@@ -15,19 +15,21 @@ def main():
         elif choice == 2:
             monthly_budget()
         elif choice == 3:
+            show_expenses()
+        elif choice == 4:
             print("Exiting the app")
             break
     
 def options():
     print("\nWhat Would you like to do?")
-    modules = ["1-Add new expense","2-Modify monthly budget","3-EXIT"]
+    modules = ["1-Add new expense","2-Modify monthly budget","3-Display your expenses","4-EXIT"]
     while True:
         for option in modules:
             print(option)
         user_input = input("Enter the Module you want to use: ")
         if user_input.isdigit():
             choice = int(user_input)
-            if 1 <= choice <= 3:
+            if 1 <= choice <= 4:
                 return choice
         print("Error: Entered number must be between 1-3.")
         
@@ -91,6 +93,28 @@ def load_expenses(filename="expenses.json"):
     except FileNotFoundError:
         return []
 
+def show_expenses():
+    expenses = load_expenses()
+    if not expenses:
+        print("\nNo expenses recorded yet.")
+        return
+    
+    print("\nYour Expenses:")
+    print("-" * 50)
+    total = 0
+    for i, expense in enumerate(expenses, start=1):
+        name = expense["Name"]
+        price = expense["Price"]
+        category = expense["category"]
+        print(f"{i}. {name:<15} {price:>7.2f}€  ({category})")
+        total += price
+    print("-" * 50)
+    print(f"Total Spent: {total:.2f}€")
+    
+    budget = load_budget()
+    if budget > 0:
+        remaining = budget - total
+        print(f"Remaining Budget: {remaining:.2f}€")
 
 if __name__ == "__main__":
     main()
