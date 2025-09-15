@@ -1,5 +1,7 @@
 import json
 import datetime
+import calendar
+
 
 BUDGET_FILE = "monthly_budget.json"
 EXPENSE_FILE_CURRENT = "expenses.json"
@@ -112,6 +114,9 @@ def load_expenses(filename=EXPENSE_FILE_CURRENT):
 
 def show_expenses():
     expenses = load_expenses()
+    today = datetime.date.today()
+    last_day = calendar.monthrange(today.year, today.month)[1]
+    days_left = last_day - today.day
     if not expenses:
         print("\nNo expenses recorded yet.")
         return
@@ -125,13 +130,22 @@ def show_expenses():
         print(f"{i}. {name:<15} {price:>7.2f}€  ({category})")
         total += price
     print("-" * 50)
-    print(f"Total Spent: {total:.2f}€")
+    print(f"Total Spent: \033[31m{total:.2f}€\033[0m")
     budget, _ = load_budget()
     if budget > 0:
         remaining = budget - total
-        print(f"Remaining Budget: {remaining:.2f}€")
+        remaining_per_day = remaining/days_left
+        if remaining >= 0.0:
+            print(f"Remaining Budget: \033[32m{remaining:.2f}€\033[0m")
+            print(f"Remaining Budget Per Day: \033[32m{remaining_per_day:.2f}€\033[0m")
+        elif remaining < 0.0:
+            print(f"Remaining Budget: \033[31m{remaining:.2f}€\033[0m")
+            print(f"Remaining Budget Per Day: \033[31m{remaining_per_day:.2f}€\033[0m")
+            
 
 
 if __name__ == "__main__":
     main()
 
+# ADD EXPENSES SHOW SUMMARY PER CATEGORY LIKE FOOD TOTAL:50€
+#SHOW HOW MUCH YOU CAN SPEND PER DAY TO STAY ON BUDGET FOR THE MONTH
