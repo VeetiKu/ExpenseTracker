@@ -117,26 +117,39 @@ def show_expenses():
     today = datetime.date.today()
     last_day = calendar.monthrange(today.year, today.month)[1]
     days_left = last_day - today.day
+    category_options = ["Food","Housing","Transportation","Entertainment","Misc"]
     if not expenses:
         print("\nNo expenses recorded yet.")
         return
+    
     print("\nYour Expenses:")
     print("-" * 50)
     total = 0
+    category_totals = {category: 0 for category in category_options}
+    
     for i, expense in enumerate(expenses, start=1):
         name = expense["Name"]
         price = expense["Price"]
         category = expense["category"]
         print(f"{i}. {name:<15} {price:>7.2f}€  ({category})")
         total += price
+        if category in category_totals:
+            category_totals[category] += price
+        
+
     print("-" * 50)
     print(f"Total Spent: \033[31m{total:.2f}€\033[0m")
+    
+    print("\nSpending by Category:")
+    for category, amount in category_totals.items():
+        print(f"{category:<15}: {amount:.2f}€")
+    
     budget, _ = load_budget()
     if budget > 0:
         remaining = budget - total
         remaining_per_day = remaining/days_left
         if remaining >= 0.0:
-            print(f"Remaining Budget: \033[32m{remaining:.2f}€\033[0m")
+            print(f"\nRemaining Budget: \033[32m{remaining:.2f}€\033[0m")
             print(f"Remaining Budget Per Day: \033[32m{remaining_per_day:.2f}€\033[0m")
         elif remaining < 0.0:
             print(f"Remaining Budget: \033[31m{remaining:.2f}€\033[0m")
@@ -146,6 +159,3 @@ def show_expenses():
 
 if __name__ == "__main__":
     main()
-
-# ADD EXPENSES SHOW SUMMARY PER CATEGORY LIKE FOOD TOTAL:50€
-#SHOW HOW MUCH YOU CAN SPEND PER DAY TO STAY ON BUDGET FOR THE MONTH
