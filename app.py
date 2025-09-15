@@ -53,13 +53,20 @@ def options():
 def get_expense():
     expenses = load_expenses()
     expense = input("\nEnter your expense: ")
-    price = float(input("Cost: "))
+    while True:
+        try:
+            price = float(input("Cost: "))
+            if price < 0:
+                raise ValueError
+            break
+        except ValueError:
+            print("Enter a valid positive number for the cost.")
     category_options = ["Food","Housing","Transportation","Entertainment","Misc"]
     while True:
         print("Category:")
         for i,option in enumerate(category_options):
             print(f"{i+1}-{option}")
-        category = int(input("Enter the Category: "))
+        category = int(input("Enter the Category number: "))
 
         if 1 <= category <= 5:
             break
@@ -70,6 +77,7 @@ def get_expense():
         "Name": expense,
         "Price": price,
         "category": category_options[category - 1],
+        "Date":datetime.date.today().isoformat()
     }
     expenses.append(new_expense)
     save_expenses(expenses)
