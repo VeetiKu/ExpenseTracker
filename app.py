@@ -32,21 +32,23 @@ def main():
         elif choice == 3:
             show_expenses()
         elif choice == 4:
+            delete_expense()
+        elif choice == 5:
             print("Exiting the app")
             break
         
 def options():
     print("\nWhat Would you like to do?")
-    modules = ["1-Add new expense","2-Modify monthly budget","3-Display your expenses","4-EXIT"]
-    while True:
-        for option in modules:
+    modules = ["1-Add new expense","2-Modify monthly budget","3-Display your expenses","4-Delete an expense","5-EXIT"]
+    for option in modules:
             print(option)
+    while True:
         user_input = input("Enter the Module you want to use: ")
         if user_input.isdigit():
             choice = int(user_input)
-            if 1 <= choice <= 4:
+            if 1 <= choice <= 5:
                 return choice
-        print("Error: Entered number must be between 1-3.")
+        print("Error: Entered number must be between 1-5.")
         
 def get_expense():
     expenses = load_expenses()
@@ -71,7 +73,7 @@ def get_expense():
     }
     expenses.append(new_expense)
     save_expenses(expenses)
-    print(f"Saved a New expense: {expense} {price}€ Category:{category_options[category-1]}")
+    print(f"Saved a New expense: {expense} {price:.2f}€ Category:{category_options[category-1]}")
     
 def monthly_budget():
     budget, _ = load_budget()
@@ -138,22 +140,66 @@ def show_expenses():
         
 
     print("-" * 50)
-    print(f"Total Spent: \033[31m{total:.2f}€\033[0m")
+
     
-    print("\nSpending by Category:")
+    print("Spending by Category:")
     for category, amount in category_totals.items():
         print(f"{category:<15}: {amount:.2f}€")
-    
+    print(f"\nTotal Spent: \033[31m{total:.2f}€\033[0m")
     budget, _ = load_budget()
     if budget > 0:
         remaining = budget - total
         remaining_per_day = remaining/days_left
+        remaining_percentage = (remaining/budget)*100
+        
         if remaining >= 0.0:
-            print(f"\nRemaining Budget: \033[32m{remaining:.2f}€\033[0m")
+            print(f"\nRemaining Budget: \033[32m{remaining:.2f}€\033[0m ({remaining_percentage}% left)")
             print(f"Remaining Budget Per Day: \033[32m{remaining_per_day:.2f}€\033[0m")
         elif remaining < 0.0:
             print(f"Remaining Budget: \033[31m{remaining:.2f}€\033[0m")
             print(f"Remaining Budget Per Day: \033[31m{remaining_per_day:.2f}€\033[0m")
+            
+def list_expenses():
+    expenses = load_expenses()
+    if not expenses:
+        print("\nNo expenses recorded yet.")
+        return []
+
+    print("\nYour Expenses:")
+    print("-" * 50)
+    for i, expense in enumerate(expenses, start=1):
+        print(f"{i}. {expense['Name']} - {expense['Price']:.2f}€ ({expense['category']})")
+    print("-" * 50)
+    
+    cancel_index = len(expenses) + 1
+    print(f"{cancel_index}. Cancel")
+    print("-" * 50)
+    
+    return expenses
+    
+def delete_expense():
+    expenses = list_expenses()
+    if not expenses:
+        return
+    
+    cancel_index = len(expenses) + 1
+    
+    while True:
+        user_input = input("\nEnter the number of the expense you want to delete (or choose Cancel): ")
+        if user_input.isdigit():
+            choice = int(user_input)
+            if 1 <= choice <= len(expenses):
+                removed = expenses.pop(choice - 1)
+                save_expenses(expenses)
+                print(f"Removed expense: {removed['Name']} ({removed['Price']:.2f}€)")
+                break
+            elif choice == cancel_index:
+                print("Deletion canceled.")
+                break
+            else:
+                print(f"Enter a number between 1 and {cancel_index}.")
+        else:
+            print("Invalid input! Please enter a number.")
             
 
 
