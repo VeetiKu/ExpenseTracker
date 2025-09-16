@@ -6,6 +6,7 @@ import calendar
 BUDGET_FILE = "monthly_budget.json"
 EXPENSE_FILE_CURRENT = "expenses.json"
 EXPENSE_FILE_PAST = "pastexpenses.json"
+RECURRING_EXPENSE_FILE = "recurring.json"
 
 
 def main():
@@ -19,7 +20,8 @@ def main():
             print("Archiving last month’s expenses and resetting for this month.")
             last_expenses = load_expenses()
             save_expenses(last_expenses, EXPENSE_FILE_PAST)
-            save_expenses([])
+            recurring_expenses = load_recurring_expenses()
+            save_expenses(recurring_expenses)  
             save_budget(budget, current_month)
 
         if budget == 0:
@@ -83,6 +85,13 @@ def get_expense():
     save_expenses(expenses)
     print(f"Saved a New expense: {expense} {price:.2f}€ Category:{category_options[category-1]}")
     
+    recurring = input("Is this a recurring monthly expense? (y/n): ").strip().lower()
+    if recurring == "y":
+        recurring_expenses = load_recurring_expenses()
+        recurring_expenses.append(new_expense)
+        save_recurring_expenses(recurring_expenses)
+        print("Recurring expense saved.")
+    
 def monthly_budget():
     budget, _ = load_budget()
     if budget > 0:
@@ -117,6 +126,17 @@ def save_expenses(expenses, filename=EXPENSE_FILE_CURRENT):
 def load_expenses(filename=EXPENSE_FILE_CURRENT):
     try:
         with open(filename, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+    
+def save_recurring_expenses(expenses):
+    with open(RECURRING_EXPENSE_FILE, "w") as f:
+        json.dump(expenses, f, indent=4)
+
+def load_recurring_expenses():
+    try:
+        with open(RECURRING_EXPENSE_FILE, "r") as f:
             return json.load(f)
     except FileNotFoundError:
         return []
