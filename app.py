@@ -31,7 +31,7 @@ class BudgetManager:
 
     def set_budget(self):
         if self.budget > 0:
-            print(f"\nYour current monthly budget is {self.budget}€")
+            print(f"\nYour current monthly budget is\033[32m{self.budget}€\033[0m")
         else:
             print("You haven't set a budget yet.")
 
@@ -42,11 +42,11 @@ class BudgetManager:
                     raise ValueError
                 break
             except ValueError:
-                print("Enter a valid positive number for the budget.")
+                print("Enter a valid positive number for the budget(No € or $ symbols).")
 
         current_month = datetime.date.today().strftime("%Y-%m")
         self.save_budget(budget, current_month)
-        print(f"Your new budget is {budget}€ every month")
+        print(f"Your new budget is  \033[32m{budget}€\033[0m every month")
         
 class ExpenseManager:
     EXPENSE_FILE_CURRENT = "expenses.json"
@@ -118,13 +118,16 @@ class ExpenseManager:
             return
 
         print("\nYour Expenses:")
+        print("-" * 50)
         for i, exp in enumerate(expenses, start=1):
             print(f"{i}. {exp['Name']} - {exp['Price']:.2f}€ ({exp['category']})")
         cancel_index = len(expenses) + 1
+        print("-" * 50)
         print(f"{cancel_index}. Cancel")
+        print("-" * 50)
 
         while True:
-            user_input = input("\nEnter the number of the expense you want to delete (or Cancel): ")
+            user_input = input(f"\nEnter the number of the expense you want to delete (or {cancel_index} to Cancel): ")
             if user_input.isdigit():
                 choice = int(user_input)
                 if 1 <= choice <= len(expenses):
@@ -172,14 +175,17 @@ class ExpenseManager:
             return
 
         print("\nYour Expenses:")
+        print("-" * 50)
         for i, exp in enumerate(expenses, start=1):
             recurring_flag = " (Recurring)" if exp in recurring_expenses else ""
             print(f"{i}. {exp['Name']} - {exp['Price']:.2f}€ ({exp['category']}){recurring_flag}")
         cancel_index = len(expenses) + 1
+        print("-" * 50)
         print(f"{cancel_index}. Cancel")
+        print("-" * 50)
 
         while True:
-            user_input = input("\nEnter the number of the expense you want to edit (or Cancel): ")
+            user_input = input(f"\nEnter the number of the expense you want to edit (or {cancel_index} to Cancel): ")
             if user_input.isdigit():
                 choice = int(user_input)
                 if 1 <= choice <= len(expenses):
@@ -317,7 +323,7 @@ def show_expenses(budget_manager, expense_manager):
 
     print("Spending by Category:")
     for category, amount in category_totals.items():
-        print(f"{category:<15}: {amount:.2f}€")
+        print(f"{category:<15}: \033[31m{amount:.2f}€\033[0m")
     print(f"\nTotal Spent: \033[31m{total:.2f}€\033[0m")
     if budget_manager.budget > 0:
         remaining = budget_manager.budget - total
@@ -326,10 +332,13 @@ def show_expenses(budget_manager, expense_manager):
         
         if remaining >= 0.0:
             print(f"\nRemaining Budget: \033[32m{remaining:.2f}€\033[0m ({remaining_percentage:.2f}% left)")
-            print(f"Remaining Budget Per Day: \033[32m{remaining_per_day:.2f}€\033[0m")
+            print(f"Remaining Budget Per Day: \033[32m{remaining_per_day:.2f}€\033[0m ({days_left} days left)")
         elif remaining < 0.0:
             print(f"Remaining Budget: \033[31m{remaining:.2f}€\033[0m")
             print(f"Remaining Budget Per Day: \033[31m{remaining_per_day:.2f}€\033[0m")
+            print(f"\033[31m YOU ARE OVER BUDGET!\033[0m")
+            
+        
 
 if __name__ == "__main__":
     main()
